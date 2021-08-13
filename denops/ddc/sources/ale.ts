@@ -24,7 +24,7 @@ export class Source extends BaseSource {
     ) as Promise<number>;
   }
 
-  gatherCandidates(
+  async gatherCandidates(
     denops: Denops,
     _context: Context,
     _ddcOptions: DdcOptions,
@@ -32,12 +32,20 @@ export class Source extends BaseSource {
     _sourceParams: Record<string, unknown>,
     _completeStr: string
   ): Promise<Candidate[]> {
-    return new Promise((resolve) => {
+    const candidates = await new Promise<Candidate[]>((resolve) => {
       denops.call(
         "ddc#ale#get_completions",
         denops.name,
         once(denops, (results: unknown) => resolve(results as Candidate[]))[0]
       );
     });
+
+    // FIXME: Hack: Some LSP (such as Rust Analyzer) sometimes returns
+    // candidates ending with whitespace, so fix them here.
+    candidates.forEach(
+      (candidate) => (candidate.word = candidate.word.trimEnd())
+    );
+
+    return candidates;
   }
 }
