@@ -32,7 +32,7 @@ export class Source extends BaseSource {
     _sourceParams: Record<string, unknown>,
     _completeStr: string
   ): Promise<Candidate[]> {
-    const candidates = await new Promise<Candidate[]>((resolve) => {
+    const candidates = new Promise<Candidate[]>((resolve) => {
       denops.call(
         "ddc#ale#get_completions",
         denops.name,
@@ -40,12 +40,16 @@ export class Source extends BaseSource {
       );
     });
 
+    const timeout = new Promise<Candidate[]>((resolve) => {
+      setTimeout(() => resolve([]), 1000);
+    });
+
+    const results = await Promise.race([candidates, timeout]);
+
     // FIXME: Hack: Some LSP (such as Rust Analyzer) sometimes returns
     // candidates ending with whitespace, so fix them here.
-    candidates.forEach(
-      (candidate) => (candidate.word = candidate.word.trimEnd())
-    );
+    results.forEach((result) => (result.word = result.word.trimEnd()));
 
-    return candidates;
+    return results;
   }
 }
