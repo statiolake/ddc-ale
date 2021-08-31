@@ -16,7 +16,7 @@ export class Source extends BaseSource {
   ): Promise<number> {
     return denops.call(
       "ale#completion#GetCompletionPositionForDeoplete",
-      context.input
+      context.input,
     ) as Promise<number>;
   }
 
@@ -27,14 +27,14 @@ export class Source extends BaseSource {
       denops.call(
         "ddc#ale#get_completions",
         denops.name,
-        once(denops, (results: unknown) => resolve(results as Candidate[]))[0]
+        once(denops, (results: unknown) => resolve(results as Candidate[]))[0],
       );
     });
 
     // FIXME: Hack: Some LSP (such as Rust Analyzer) sometimes returns
     // candidates ending with whitespace, so fix them here.
     candidates.forEach(
-      (candidate) => (candidate.word = candidate.word.trimEnd())
+      (candidate) => (candidate.word = candidate.word.trimEnd()),
     );
 
     return candidates;
