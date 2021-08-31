@@ -3,20 +3,16 @@
 import {
   BaseSource,
   Candidate,
-  Context,
-  DdcOptions,
-  SourceOptions,
-} from "https://deno.land/x/ddc_vim@v0.0.13/types.ts";
-import { Denops } from "https://deno.land/x/ddc_vim@v0.0.13/deps.ts";
+} from "https://deno.land/x/ddc_vim@v0.3.0/types.ts#^";
+import {
+  GatherCandidatesArguments,
+  GetCompletePositionArguments,
+} from "https://deno.land/x/ddc_vim@v0.3.0/base/source.ts#^";
 import { once } from "https://deno.land/x/denops_std@v1.0.1/anonymous/mod.ts";
 
 export class Source extends BaseSource {
   getCompletePosition(
-    denops: Denops,
-    context: Context,
-    _options: DdcOptions,
-    _sourceOptions: SourceOptions,
-    _sourceParams: Record<string, unknown>
+    { denops, context }: GetCompletePositionArguments,
   ): Promise<number> {
     return denops.call(
       "ale#completion#GetCompletionPositionForDeoplete",
@@ -25,12 +21,7 @@ export class Source extends BaseSource {
   }
 
   async gatherCandidates(
-    denops: Denops,
-    _context: Context,
-    _ddcOptions: DdcOptions,
-    _sourceOptions: SourceOptions,
-    _sourceParams: Record<string, unknown>,
-    _completeStr: string
+    { denops }: GatherCandidatesArguments,
   ): Promise<Candidate[]> {
     const candidates = await new Promise<Candidate[]>((resolve) => {
       denops.call(
