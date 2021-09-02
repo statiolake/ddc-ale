@@ -3,11 +3,11 @@
 import {
   BaseSource,
   Candidate,
-} from "https://deno.land/x/ddc_vim@v0.3.0/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.4.3/types.ts";
 import {
   GatherCandidatesArguments,
   GetCompletePositionArguments,
-} from "https://deno.land/x/ddc_vim@v0.3.0/base/source.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.4.3/base/source.ts";
 import { once } from "https://deno.land/x/denops_std@v1.0.1/anonymous/mod.ts";
 
 export class Source extends BaseSource {
@@ -23,20 +23,23 @@ export class Source extends BaseSource {
   async gatherCandidates(
     { denops }: GatherCandidatesArguments,
   ): Promise<Candidate[]> {
-    const candidates = await new Promise<Candidate[]>((resolve) => {
+    return await new Promise<Candidate[]>((resolve) => {
       denops.call(
         "ddc#ale#get_completions",
         denops.name,
-        once(denops, (results: unknown) => resolve(results as Candidate[]))[0],
+        once(denops, (results: unknown) => {
+          results = Array.isArray(results) ? results : [];
+          // FIXME: Hack: Some LSP (such as Rust Analyzer) sometimes returns
+          // candidates ending with whitespace, so fix them here.
+          const candidates: Candidate[] = (results as Candidate[]).map(
+            (candidate) => {
+              candidate.word = candidate.word.trimEnd();
+              return candidate;
+            },
+          );
+          resolve(candidates);
+        })[0],
       );
     });
-
-    // FIXME: Hack: Some LSP (such as Rust Analyzer) sometimes returns
-    // candidates ending with whitespace, so fix them here.
-    candidates.forEach(
-      (candidate) => (candidate.word = candidate.word.trimEnd()),
-    );
-
-    return candidates;
   }
 }
