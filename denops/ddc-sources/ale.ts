@@ -28,9 +28,7 @@ export class Source extends BaseSource {
         "ddc#ale#get_completions",
         denops.name,
         once(denops, (results: unknown) => {
-          const candidates: Candidate[] = ((Array.isArray(results)
-            ? results
-            : []));
+          const candidates: Candidate[] = Array.isArray(results) ? results : [];
           // FIXME: Hack: Some LSP (such as Rust Analyzer) sometimes returns
           // candidates ending with whitespace, so fix them here.
           candidates.forEach(
