@@ -2,11 +2,11 @@ let s:plugin_name = v:null
 let s:method_name = v:null
 
 function! s:callback(results) abort
-  if type(s:method_name) == v:t_none
+  if type(s:method_name) == type(v:null)
     return
   endif
 
-  if type(a:results) != type([]) && type(a:results) != v:t_none
+  if type(a:results) != type([]) && type(a:results) != type(v:null)
     let a:results = []
   endif
 
@@ -23,7 +23,7 @@ function! ddc#ale#get_completions(plugin_name, method_name) abort
   " If we were already waiting for a response from the server, we need to go
   " ahead and call it it with a null value to make room for the next batch of
   " completions
-  if type(s:method_name) != v:t_none
+  if type(s:method_name) != type(v:null)
     call s:callback(v:null)
   endif
 
