@@ -8,7 +8,7 @@ import {
   GatherCandidatesArguments,
   GetCompletePositionArguments,
 } from "https://deno.land/x/ddc_vim@v0.4.3/base/source.ts";
-import { once } from "https://deno.land/x/denops_std@v1.0.1/anonymous/mod.ts";
+import { once } from "https://deno.land/x/denops_std@v1.8.1/anonymous/mod.ts";
 
 export class Source extends BaseSource {
   getCompletePosition(
