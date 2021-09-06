@@ -12,50 +12,68 @@ import {
 
 const DEFAULT_EMPTY_RESULTS: Candidate[] = [];
 
+interface AleParams {
+  cleanResultsWhitespace: boolean;
+}
+
 export class Source extends BaseSource {
-  async onInit(args: OnInitArguments): Promise<void> {
-    await batch(args.denops, async (denops) => {
-      await vars.g.set(denops, "ddc#source#ale#_results", DEFAULT_EMPTY_RESULTS);
+  async onInit({ denops }: OnInitArguments): Promise<void> {
+    await batch(denops, async (denops) => {
+      await vars.g.set(
+        denops,
+        "ddc#source#ale#_results",
+        DEFAULT_EMPTY_RESULTS,
+      );
       await vars.g.set(denops, "ddc#source#ale#_requested", false);
       await vars.g.set(denops, "ddc#source#ale#_prev_input", "");
     });
   }
 
   async gatherCandidates(
-    args: GatherCandidatesArguments,
+    { denops, context, sourceParams }: GatherCandidatesArguments,
   ): Promise<Candidate[]> {
+    const params: AleParams = (sourceParams as unknown as AleParams);
     const prevInput: string = await vars.g.get(
-      args.denops,
+      denops,
       "ddc#source#ale#_prev_input",
-    ).then(p => typeof p === 'string' ? p : '');
+    ).then((p) => typeof p === "string" ? p : "");
     const requested: boolean = await vars.g.get(
-      args.denops,
+      denops,
       "ddc#source#ale#_requested",
-    ).then(r => typeof r === 'boolean' ? r : false);
+    ).then((r) => typeof r === "boolean" ? r : false);
 
-    if (args.context.input === prevInput && requested) {
+    if (context.input === prevInput && requested) {
       const results: Candidate[] = await vars.g.get(
-        args.denops,
+        denops,
         "ddc#source#ale#_results",
       ) ?? DEFAULT_EMPTY_RESULTS;
       // FIXME: Hack: Some LSPs (such as Rust Analyzer) sometimes return
       // candidates ending with whitespace, so fix them here.
-      results.forEach((result) => result.word = result.word.trimEnd());
+      if (params.cleanResultsWhitespace) {
+        results.forEach((result) => result.word = result.word.trimEnd());
+      }
       return results;
     }
 
-    await batch(args.denops, (denops) => {
+    await batch(denops, (denops) => {
       vars.g.set(denops, "ddc#source#ale#_results", []);
       vars.g.set(denops, "ddc#source#ale#_requested", false);
       vars.g.set(
         denops,
         "ddc#source#ale#_prev_input",
-        args.context.input,
+        context.input,
       );
       denops.call("ddc#ale#get_completions");
       return Promise.resolve();
     });
 
     return [];
+  }
+
+  params(): Record<string, unknown> {
+    const Params: AleParams = { cleanResultsWhitespace: false };
+    // It's unfortunate that the current types for BaseSource does not allow us
+    // to pass through param types, maybe I can file an update to this
+    return Params as unknown as Record<string, unknown>;
   }
 }
