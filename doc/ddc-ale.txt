@@ -1,0 +1,60 @@
+*ddc-ale.txt*                                       ALE completion for ddc.vim
+
+==============================================================================
+CONTENTS
+
+  1. Introduction                                       |ddc-ale-introduction|
+  2. Requirements                                       |ddc-ale-requirements|
+  3. Example Configuration                              |ddc-ale-example|
+  4. Options                                            |ddc-ale-options|
+
+
+==============================================================================
+1. Introduction                                         *ddc-ale-introduction*
+
+This source collects the completion candidates from each language server
+through ALE (Asynchronous Lint Engine). You can think this of it as a ddc.vim
+version of ALE's built-in source for deoplete.nvim.
+
+==============================================================================
+1. Requirements                                         *ddc-ale-requirements*
+
+You need ddc.vim and ALE to use this plugin. To see how to set up those
+plugins, please see each plugin's repository and help file.
+
+- ddc.vim: https://github.com/Shougo/ddc.vim
+- ale.vim: https://github.com/dense-analysis/ale
+
+==============================================================================
+3. Example Configuration                                     *ddc-ale-example*
+
+This plugin just provides completion source named `ale`. You can register this
+source to ddc.vim by adding the following to your .vimrc: >
+
+  # Enable ALE source
+  call ddc#custom#patch_global('sources', ['ale'])
+<
+You can speficy the source option by putting some code like below to your
+.vimrc: >
+
+  # Option: cleanResultsWhitespace
+  call ddc#custom#patch_global('sourceParams',
+      \ {'ale': {'cleanResultsWhitespace': v:false}})
+<
+==============================================================================
+4. Options                                                   *ddc-ale-options*
+
+cleanResultsWhitespace                 *ddc-ale-option-cleanResultsWhitespace*
+
+  Type: |Number|
+  Default: `v:false`
+
+  When this option is set to `1`, all trailing spaces of each candidate
+  returned by ALE is removed.
+
+  Usually you don't need to turn on this option. Some LSPs (such as Rust
+  Analyzer) returns words containing trailing whitespaces. If you feel that's
+  inconvenient, you can fix whitespaces by turning this option to `v:true`.
+
+==============================================================================
+  vim:tw=78:ts=2:sts=2:sw=2:ft=help:norl:
