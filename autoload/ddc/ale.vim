@@ -1,4 +1,4 @@
-function! s:callback(results, id) abort
+function! s:callback(id, results) abort
   let l:results = a:results
   if type(l:results) != type([])
     let l:results = []
@@ -10,6 +10,6 @@ function! ddc#ale#get_completions(id) abort
   if !ale#completion#CanProvideCompletions()
     call s:callback(a:id, [])
   else
-    call ale#completion#GetCompletions('ale-callback', {'callback': {results->s:callback(results, a:id)}})
+    call ale#completion#GetCompletions('ale-callback', {'callback': {results->s:callback(a:id, results)}})
   endif
 endfunction
