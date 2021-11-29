@@ -35,9 +35,6 @@ export class Source extends BaseSource<AleParams> {
   }
 
   params(): AleParams {
-    const Params: AleParams = { cleanResultsWhitespace: false };
-    // It's unfortunate that the current types for BaseSource does not allow us
-    // to pass through param types, maybe I can file an update to this
-    return Params;
+    return { cleanResultsWhitespace: false };
   }
 }
