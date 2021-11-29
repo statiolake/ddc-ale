@@ -1,19 +1,15 @@
-function! s:callback(results) abort
-  if type(a:results) != type([])
-    let a:results = []
+function! s:callback(results, id) abort
+  let l:results = a:results
+  if type(l:results) != type([])
+    let l:results = []
   endif
-
-  if len(a:results) > 0
-    let g:ddc#source#ale#_results = a:results
-    let g:ddc#source#ale#_requested = v:true
-    call ddc#refresh_candidates()
-  endif
+  call ddc#callback(a:id, l:results)
 endfunction
 
-function! ddc#ale#get_completions() abort
+function! ddc#ale#get_completions(id) abort
   if !ale#completion#CanProvideCompletions()
-    call s:callback([])
+    call s:callback(a:id, [])
   else
-    call ale#completion#GetCompletions('ale-callback', {'callback': {results->s:callback(results)}})
+    call ale#completion#GetCompletions('ale-callback', {'callback': {results->s:callback(results, a:id)}})
   endif
 endfunction
