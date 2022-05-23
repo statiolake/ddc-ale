@@ -2,11 +2,12 @@
 
 import {
   BaseSource,
-  Candidate,
-} from "https://deno.land/x/ddc_vim@v0.18.0/types.ts";
+  Item,
+  DdcGatherItems
+} from "https://deno.land/x/ddc_vim@v2.3.0/types.ts";
 import {
-  GatherCandidatesArguments,
-} from "https://deno.land/x/ddc_vim@v0.18.0/base/source.ts";
+  GatherArguments,
+} from "https://deno.land/x/ddc_vim@v2.3.0/base/source.ts";
 
 type AleParams = {
   cleanResultsWhitespace: boolean;
@@ -15,14 +16,14 @@ type AleParams = {
 export class Source extends BaseSource<AleParams> {
   private counter = 0;
 
-  async gatherCandidates(
-    { denops, sourceParams, onCallback }: GatherCandidatesArguments<AleParams>,
-  ): Promise<Candidate[]> {
+  async gather(
+    { denops, sourceParams, onCallback }: GatherArguments<AleParams>,
+  ): Promise<DdcGatherItems> {
     this.counter = (this.counter + 1) % 100;
     const id = `source/${this.name}/${this.counter}`;
 
     const [results] = await Promise.all([
-      onCallback(id) as Promise<Candidate[]>,
+      onCallback(id) as Promise<Item[]>,
       denops.call("ddc#ale#get_completions", id),
     ]);
 
